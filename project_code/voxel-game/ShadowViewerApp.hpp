@@ -8,6 +8,12 @@ class ShadowViewerApp : public Application {
  public:
   ShadowViewerApp(const std::string& app_name, glm::ivec2 window_size);
   void SetupScene() override;
+  protected:
+	void DrawGUI() override;
+private:
+	int seed_ = 0;
+	bool enable_shadows_ = false;
+	
 };
 }  // namespace GLOO
 

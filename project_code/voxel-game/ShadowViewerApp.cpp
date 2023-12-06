@@ -86,4 +86,19 @@ void ShadowViewerApp::SetupScene() {
   }
 }
 
+void ShadowViewerApp::DrawGUI() {
+  ImGui::SetNextWindowPos(ImVec2(0, 0));
+  ImGui::Begin("Shadow Viewer", nullptr,
+      			   ImGuiWindowFlags_AlwaysAutoResize);
+  ImGui::Text("Use WASD to move the camera.");
+  ImGui::Text("Use the mouse to rotate the camera.");
+  ImGui::InputInt("Seed", &seed_);
+  ImGui::Checkbox("Enable Shadows", &enable_shadows_);
+  if (ImGui::Button("Regenerate")) {
+	srand(seed_);
+	SetupScene();
+  }
+  ImGui::End();
+}
+
 }  // namespace GLOO
