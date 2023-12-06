@@ -44,7 +44,7 @@ void VoxelViewerApp::SetupScene() {
   SceneNode& root = scene_->GetRootNode();
 
   // Creates a player node that can be controlled by the user.
-  auto camera_node = make_unique<PlayerNode>(50.0f, 1.0f, 4.0f, 4.0f);
+  auto camera_node = make_unique<PlayerNode>(50.0f, 1.0f, 4.0f, 1.0f);
   camera_node->GetTransform().SetPosition(glm::vec3(0.0f, 2.0f, 0.0f));
   camera_node->GetTransform().SetRotation(glm::vec3(0.0f, 1.0f, 0.0f), kPi / 2);
   camera_node->Calibrate();
@@ -85,7 +85,7 @@ void VoxelViewerApp::SetupScene() {
 // Implemented a GUI that allows the user to change the seed and enable/disable shadows.
 void VoxelViewerApp::DrawGUI() {
   ImGui::SetNextWindowPos(ImVec2(0, 0));
-  ImGui::Begin("Shadow Viewer", nullptr,
+  ImGui::Begin("Voxel Control Panel", nullptr,
       			   ImGuiWindowFlags_AlwaysAutoResize);
   ImGui::Text("Use WASD to move the camera.");
   ImGui::Text("Use the mouse to rotate the camera.");
