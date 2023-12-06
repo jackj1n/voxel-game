@@ -20,6 +20,7 @@
 #include "SunNode.hpp"
 
 #include "PlayerNode.hpp"
+#include "world.hpp"
 
 namespace {
 void SetAmbientToDiffuse(GLOO::MeshData& mesh_data) {
@@ -61,25 +62,28 @@ void VoxelViewerApp::SetupScene() {
   // Add in the directional light as the sun.
   root.AddChild(make_unique<SunNode>());
 
-  // Load and set up the scene OBJ.
-  MeshData mesh_data =
-      MeshLoader::Import("voxel-game/sponza_low/sponza_norm.obj");
-  SetAmbientToDiffuse(mesh_data);
+  //// Load and set up the scene OBJ.
+  //MeshData mesh_data =
+  //    MeshLoader::Import("voxel-game/sponza_low/sponza_norm.obj");
+  //SetAmbientToDiffuse(mesh_data);
 
-  std::shared_ptr<PhongShader> shader = std::make_shared<PhongShader>();
-  std::shared_ptr<VertexObject> vertex_obj = std::move(mesh_data.vertex_obj);
-  
-  // Add in the scene.
-  std::vector<MeshGroup> mesh_groups = mesh_data.groups;
-  for (int i = 0; i < mesh_groups.size(); i++) {
-      MeshGroup mesh = mesh_groups[i];
-      auto mesh_node = make_unique<SceneNode>();
-      mesh_node->CreateComponent<ShadingComponent>(shader);
-      mesh_node->CreateComponent<RenderingComponent>(vertex_obj);
-      mesh_node->GetComponentPtr<RenderingComponent>()->SetDrawRange(mesh.start_face_index, mesh.num_indices);
-      mesh_node->CreateComponent<MaterialComponent>(mesh.material);
-      root.AddChild(std::move(mesh_node));
-  }
+  //std::shared_ptr<PhongShader> shader = std::make_shared<PhongShader>();
+  //std::shared_ptr<VertexObject> vertex_obj = std::move(mesh_data.vertex_obj);
+  //
+  //// Add in the scene.
+  //std::vector<MeshGroup> mesh_groups = mesh_data.groups;
+  //for (int i = 0; i < mesh_groups.size(); i++) {
+  //    MeshGroup mesh = mesh_groups[i];
+  //    auto mesh_node = make_unique<SceneNode>();
+  //    mesh_node->CreateComponent<ShadingComponent>(shader);
+  //    mesh_node->CreateComponent<RenderingComponent>(vertex_obj);
+  //    mesh_node->GetComponentPtr<RenderingComponent>()->SetDrawRange(mesh.start_face_index, mesh.num_indices);
+  //    mesh_node->CreateComponent<MaterialComponent>(mesh.material);
+  //    root.AddChild(std::move(mesh_node));
+  //}
+    World world(0);
+    world.Render(root);
+
 }
 
 // Implemented a GUI that allows the user to change the seed and enable/disable shadows.
