@@ -10,6 +10,7 @@ class PlayerNode : public SceneNode {
  public:
   PlayerNode(float fov = 45.f, float aspect = 0.75f, float speed = 2.0f, float distance = 5.0f);
   void Update(double delta_time) override;
+  void Calibrate();
 
  private:
   void UpdateViewport();
@@ -21,7 +22,6 @@ class PlayerNode : public SceneNode {
   glm::quat start_rotation_;
   float start_distance_;
   glm::dvec2 mouse_start_click_;
-  glm::dvec2 prev_mous_pos_;
 };
 }  // namespace GLOO
 

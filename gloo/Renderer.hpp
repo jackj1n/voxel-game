@@ -31,9 +31,6 @@ class Renderer {
                                 const glm::mat4& model_matrix);
   std::unique_ptr<VertexObject> quad_;
 
-  void RenderTexturedQuad(const Texture& texture, bool is_depth) const;
-  void DebugShadowMap() const;
-
   std::unique_ptr<Texture> shadow_depth_tex_;
   std::unique_ptr<PlainTextureShader> plain_texture_shader_;
   Application& application_;

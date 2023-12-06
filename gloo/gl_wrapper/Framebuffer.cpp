@@ -36,8 +36,7 @@ void Framebuffer::Unbind() const {
 
 void Framebuffer::AssociateTexture(const Texture& texture, GLenum attachment) {
   Bind();
-  // TODO: call glFramebufferTexture2D with correct arguments.
-  // Make sure you use GL_CHECK to detect potential errors.
+  // Call glFramebufferTexture2D with correct arguments.
   GL_CHECK(glFramebufferTexture2D(GL_FRAMEBUFFER, attachment, GL_TEXTURE_2D, texture.GetHandle(), 0));
   GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
   if (status != GL_FRAMEBUFFER_COMPLETE) {

@@ -25,16 +25,12 @@ const glm::mat4 kLightProjection =
 namespace GLOO {
 Renderer::Renderer(Application& application) : application_(application) {
   UNUSED(application_);
-  // TODO: you may want to initialize your framebuffer and texture(s) here.
   shadow_depth_tex_ = make_unique<Texture>();
   shadow_depth_tex_->Reserve(GL_DEPTH_COMPONENT, kShadowWidth, kShadowHeight, GL_DEPTH_COMPONENT, GL_FLOAT);
   frame_buffer_ = make_unique<Framebuffer>();
   frame_buffer_->AssociateTexture(*shadow_depth_tex_.get(), GL_DEPTH_ATTACHMENT);
   shadow_shader_ = make_unique<ShadowShader>();
   plain_texture_shader_ = make_unique<PlainTextureShader>();
-  // To render a quad on in the lower-left of the screen, you can assign texture
-  // to quad_ created below and then call quad_->GetVertexArray().Render().
-  quad_ = PrimitiveFactory::CreateQuad();
 }
 
 void Renderer::SetRenderingOptions() const {
@@ -52,9 +48,6 @@ void Renderer::SetRenderingOptions() const {
 void Renderer::Render(const Scene& scene) const {
   SetRenderingOptions();
   RenderScene(scene);
-  // TODO: When debugging your shadow map, call DebugShadowMap to render a
-  // quad at the bottom left corner to display the shadow map.
-  DebugShadowMap();
 }
 
 void Renderer::RecursiveRetrieve(const SceneNode& node,
@@ -131,10 +124,6 @@ void Renderer::RenderScene(const Scene& scene) const {
 
   // The real shadow map/Phong shading passes.
   for (size_t light_id = 0; light_id < light_ptrs.size(); light_id++) {
-    // TODO: render the shadow map viewed from the light.
-    // This should be rendered to the shadow framebuffer instead of the default
-    // one. You should only render shadow if the light can cast shadow (e.g.
-    // directional light).
     LightComponent& light = *light_ptrs.at(light_id);
     if (light.CanCastShadow()) {
         RenderShadow(rendering_info, light);
@@ -163,7 +152,7 @@ void Renderer::RenderScene(const Scene& scene) const {
 
       LightComponent& light = *light_ptrs.at(light_id);
       shader->SetLightSource(light);
-      // TODO: pass in the shadow texture to the shader via SetShadowMapping if
+      // Pass in the shadow texture to the shader via SetShadowMapping if
       // the light can cast shadow.
       if (light.CanCastShadow()) {
           shader->SetShadowMapping(*shadow_depth_tex_.get(), kLightProjection * glm::inverse(light.GetNodePtr()->GetTransform().GetLocalToWorldMatrix()));
@@ -176,24 +165,6 @@ void Renderer::RenderScene(const Scene& scene) const {
   GL_CHECK(glDepthMask(GL_TRUE));
 }
 
-void Renderer::RenderTexturedQuad(const Texture& texture, bool is_depth) const {
-  BindGuard shader_bg(plain_texture_shader_.get());
-  plain_texture_shader_->SetVertexObject(*quad_);
-  plain_texture_shader_->SetTexture(texture, is_depth);
-  quad_->GetVertexArray().Render();
-}
-
-void Renderer::DebugShadowMap() const {
-  GL_CHECK(glDisable(GL_DEPTH_TEST));
-  GL_CHECK(glDisable(GL_BLEND));
-
-  glm::ivec2 window_size = application_.GetWindowSize();
-  glViewport(0, 0, window_size.x / 4, window_size.y / 4);
-  RenderTexturedQuad(*shadow_depth_tex_, true);
-
-  glViewport(0, 0, window_size.x, window_size.y);
-}
-//
 void Renderer::RenderShadow(RenderingInfo& rendering_info, LightComponent& light) const {
     frame_buffer_->Bind();
     GL_CHECK(glViewport(0, 0, kShadowWidth, kShadowHeight));
