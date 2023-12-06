@@ -1,12 +1,12 @@
 #include <iostream>
 #include <chrono>
 
-#include "ShadowViewerApp.hpp"
+#include "VoxelViewerApp.hpp"
 
 using namespace GLOO;
 
 int main() {
-  auto app = make_unique<ShadowViewerApp>("Voxel Game", glm::ivec2(1440, 900));
+  auto app = make_unique<VoxelViewerApp>("Voxel Game", glm::ivec2(1440, 900));
 
   app->SetupScene();
 

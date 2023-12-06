@@ -16,6 +16,7 @@ PlayerNode::PlayerNode(float fov, float aspect, float speed, float distance)
   start_position_ = GetTransform().GetPosition();
   start_rotation_ = GetTransform().GetRotation();
   start_distance_ = distance;
+  prev_mous_pos_ = glm::dvec2(0.0, 0.0);
 }
 
 void PlayerNode::Update(double delta_time) {
@@ -25,20 +26,25 @@ void PlayerNode::Update(double delta_time) {
   glm::vec3 old_position = GetTransform().GetPosition();
   glm::vec3 new_position = old_position;
   static bool prev_released = true;
-  if (InputManager::GetInstance().IsMiddleMousePressed()) {
-      if (prev_released) {
-          mouse_start_click_ = InputManager::GetInstance().GetCursorPosition();
-      }
-      PlaneTranslation(InputManager::GetInstance().GetCursorPosition());
-      prev_released = false;
-  }
-  else if (InputManager::GetInstance().IsLeftMousePressed()) {
+  if (InputManager::GetInstance().IsLeftMousePressed()) {
       if (prev_released) {
           mouse_start_click_ = InputManager::GetInstance().GetCursorPosition();
       }
       PlayerRotation(InputManager::GetInstance().GetCursorPosition());
       prev_released = false;
   }
+  else {
+      auto scroll = InputManager::GetInstance().FetchAndResetMouseScroll();
+      prev_released = true;
+      start_position_ = GetTransform().GetPosition();
+      start_rotation_ = GetTransform().GetRotation();
+      start_distance_ = distance_;
+  }
+  auto V = make_unique<glm::mat4>(glm::lookAt(
+      glm::vec3(0, 0, distance_), glm::vec3(0), glm::vec3(0, 1.f, 0)));
+  *V *= glm::toMat4(GetTransform().GetRotation()) *
+      glm::translate(glm::mat4(1.f), GetTransform().GetPosition());
+  GetComponentPtr<CameraComponent>()->SetViewMatrix(std::move(V));
   if (InputManager::GetInstance().IsKeyPressed('W')) {
     new_position += delta_dist * GetTransform().GetForwardDirection();
   }
@@ -61,6 +67,27 @@ void PlayerNode::UpdateViewport() {
   GetComponentPtr<CameraComponent>()->SetAspectRatio(aspect_ratio);
 }
 void PlayerNode::PlayerRotation(glm::dvec2 pos) {
+
+    //const float sensitivity = 0.5f;  // Adjust the sensitivity based on your preference
+    //auto delta_pos = pos - prev_mous_pos_;
+    //auto rot = GetTransform().GetRotation();
+    //float yaw = glm::yaw(rot);
+    //float pitch = glm::pitch(rot);
+
+    //// Update yaw (left and right rotation)
+    //float yawChange = delta_pos.x * sensitivity;
+    //yaw += yawChange;
+
+    //// Update pitch (up and down rotation)
+    //float pitchChange = delta_pos.y * sensitivity;
+    //pitch += pitchChange;
+
+    //// Ensure pitch stays within a reasonable range to avoid gimbal lock
+    //const float maxPitch = 89.0f;  // Adjust based on your needs
+    //pitch = glm::clamp(pitch, -maxPitch, maxPitch);
+    //GetTransform().SetRotation(glm::quat(glm::vec3(glm::radians(pitch), glm::radians(yaw), 0.0f)));
+    //prev_mous_pos_ = pos;
+
     float sx, sy, sz, ex, ey, ez;
     float scale;
     float sl, el;
@@ -123,29 +150,5 @@ void PlayerNode::PlayerRotation(glm::dvec2 pos) {
 
         GetTransform().SetRotation(glm::angleAxis(angle, axis) * start_rotation_);
     }
-}
-
-void PlayerNode::PlaneTranslation(glm::dvec2 pos) {
-    // compute "distance" of image plane (wrt projection matrix)
-    glm::ivec2 window_size = InputManager::GetInstance().GetWindowSize();
-    float d = static_cast<float>(window_size.y) / 2.0f /
-        tan(fov_ * kPi / 180.0f / 2.0f);
-
-    // compute up plane intersect of clickpoint (wrt fovy)
-    float su = float(-mouse_start_click_.y + window_size.y / 2.0f);
-    float cu = float(-pos.y + window_size.y / 2.0f);
-
-    // compute right plane intersect of clickpoint (ASSUMED FOVY is 1)
-    float sr = float(mouse_start_click_.x - window_size.x / 2.0f);
-    float cr = float(pos.x - window_size.x / 2.0f);
-
-    // this maps move
-    glm::vec2 move(cr - sr, cu - su);
-    move *= -distance_ / d;
-
-    auto rot = glm::toMat4(GetTransform().GetRotation());
-    GetTransform().SetPosition(start_position_ -
-        (move.x * glm::vec3(glm::transpose(rot)[0]) +
-            move.y * glm::vec3(glm::transpose(rot)[1])));
 }
 }  // namespace GLOO

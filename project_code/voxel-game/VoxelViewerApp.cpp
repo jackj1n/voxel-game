@@ -1,4 +1,4 @@
-#include "ShadowViewerApp.hpp"
+#include "VoxelViewerApp.hpp"
 
 #include <glm/gtx/string_cast.hpp>
 #include <glm/ext/matrix_transform.hpp>
@@ -19,6 +19,8 @@
 
 #include "SunNode.hpp"
 
+#include "PlayerNode.hpp"
+
 namespace {
 void SetAmbientToDiffuse(GLOO::MeshData& mesh_data) {
   // Certain groups do not have an ambient color, so we use their diffuse colors
@@ -33,16 +35,16 @@ void SetAmbientToDiffuse(GLOO::MeshData& mesh_data) {
 }  // namespace
 
 namespace GLOO {
-ShadowViewerApp::ShadowViewerApp(const std::string& app_name,
+VoxelViewerApp::VoxelViewerApp(const std::string& app_name,
                                  glm::ivec2 window_size)
     : Application(app_name, window_size) {
 }
 
-void ShadowViewerApp::SetupScene() {
+void VoxelViewerApp::SetupScene() {
   SceneNode& root = scene_->GetRootNode();
 
-  // Setting up the camera. PLEASE DO NOT MODIFY THE INITIAL CAMERA TRANSFORM.
-  auto camera_node = make_unique<BasicCameraNode>(50.0f, 1.0f, 5.0f);
+  // Creates a player node that can be controlled by the user.
+  auto camera_node = make_unique<PlayerNode>(50.0f, 1.0f, 3.0f, 4.0f);
   camera_node->GetTransform().SetPosition(glm::vec3(0.0f, 2.0f, 0.0f));
   camera_node->GetTransform().SetRotation(glm::vec3(0.0f, 1.0f, 0.0f), kPi / 2);
   scene_->ActivateCamera(camera_node->GetComponentPtr<CameraComponent>());
@@ -65,14 +67,8 @@ void ShadowViewerApp::SetupScene() {
 
   std::shared_ptr<PhongShader> shader = std::make_shared<PhongShader>();
   std::shared_ptr<VertexObject> vertex_obj = std::move(mesh_data.vertex_obj);
-
-  // TODO: Create the SceneNodes. All objects in the scene will share a
-  // VertexObject. Each object is represented as a "group" within
-  // mesh_data.groups. You will need to create a SceneNode for each object and
-  // create a ShadingComponent and a RenderingComponent for it before adding the
-  // node to the scene tree. You will also need to set the draw range of the
-  // RenderingComponent to start at start_face_index of each group, with the
-  // number of indices equal to num_indices of the group.
+  
+  // Add in the scene.
   std::vector<MeshGroup> mesh_groups = mesh_data.groups;
   for (int i = 0; i < mesh_groups.size(); i++) {
       MeshGroup mesh = mesh_groups[i];
@@ -85,7 +81,8 @@ void ShadowViewerApp::SetupScene() {
   }
 }
 
-void ShadowViewerApp::DrawGUI() {
+// Implemented a GUI that allows the user to change the seed and enable/disable shadows.
+void VoxelViewerApp::DrawGUI() {
   ImGui::SetNextWindowPos(ImVec2(0, 0));
   ImGui::Begin("Shadow Viewer", nullptr,
       			   ImGuiWindowFlags_AlwaysAutoResize);
@@ -99,5 +96,4 @@ void ShadowViewerApp::DrawGUI() {
   }
   ImGui::End();
 }
-
 }  // namespace GLOO
