@@ -16,6 +16,9 @@ class LightComponent : public ComponentBase {
     return light_.get();
   }
 
+  bool CanCastShadow() const {
+    return light_->GetType() == LightType::Directional;
+  }
 
  private:
   std::shared_ptr<LightBase> light_;

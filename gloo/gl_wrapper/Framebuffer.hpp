@@ -3,6 +3,7 @@
 
 #include "BindGuard.hpp"
 #include "gloo/external.hpp"
+#include "Texture.hpp"
 
 namespace GLOO {
 class Framebuffer : public IBindable {
@@ -19,6 +20,7 @@ class Framebuffer : public IBindable {
 
   void Bind() const override;
   void Unbind() const override;
+  void AssociateTexture(const Texture& texture, GLenum attachment);
 
  private:
   GLuint handle_{GLuint(-1)};

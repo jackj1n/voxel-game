@@ -10,6 +10,7 @@
 
 #include "gloo/gl_wrapper/VertexArray.hpp"
 #include "gloo/Transform.hpp"
+#include "gloo/gl_wrapper/Texture.hpp"
 
 namespace GLOO {
 class CameraComponent;
@@ -32,6 +33,10 @@ class ShaderProgram : public IBindable {
   virtual void SetCamera(const CameraComponent& camera) const {
   }
   virtual void SetLightSource(const LightComponent& light) const {
+  }
+  virtual void SetShadowMapping(
+      const Texture& shadow_texture,
+      const glm::mat4& world_to_light_NDC_matrix) const {
   }
 
  protected:

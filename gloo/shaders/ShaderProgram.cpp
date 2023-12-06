@@ -82,6 +82,7 @@ GLuint ShaderProgram::LoadShader(GLenum type,
   shader_code = shader_code.substr(version_end + 1);
   std::vector<const char*> codes = {version.c_str(), shader_code.c_str()};
 
+  codes.insert(codes.begin() + 1, "#define ASSIGNMENT_5_STARTER\n");
   GL_CHECK(glShaderSource(shader_handle, (GLsizei)codes.size(), codes.data(),
                           nullptr));
   GL_CHECK(glCompileShader(shader_handle));

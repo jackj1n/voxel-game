@@ -65,6 +65,36 @@ void PhongShader::SetTargetNode(const SceneNode& node,
   SetUniform("material.specular", material_ptr->GetSpecularColor());
   SetUniform("material.shininess", material_ptr->GetShininess());
 
+  // TODO: bind the ambient, diffuse, and specular textures from the material
+  // (if there's any) to separate texture units (e.g. 0, 1, 2) and then set the
+  // shader properly to use these texture units. You may find it helpful (not
+  // required) to create some boolean flags in the shader to set whether the
+  // texture of each type is enabled (e.g. bool ambient_enabled). Please also
+  // take care of the cases where some of textures is nullptr.
+  SetUniform("ambient_texture", 0);
+  SetUniform("diffuse_texture", 1);
+  SetUniform("specular_texture", 2);
+  if (material_ptr->GetAmbientTexture()) {
+      SetUniform("ambient_enabled", true);
+      material_ptr->GetAmbientTexture()->BindToUnit(0);
+  }
+  else {
+      SetUniform("ambient_enabled", false);
+  }
+  if (material_ptr->GetDiffuseTexture()) {
+      material_ptr->GetDiffuseTexture()->BindToUnit(1);
+      SetUniform("diffuse_enabled", true);
+  }
+  else {
+      SetUniform("diffuse_enabled", false);
+  }
+  if (material_ptr->GetSpecularTexture()) {
+      SetUniform("specular_enabled", true);
+      material_ptr->GetSpecularTexture()->BindToUnit(2);
+  }
+  else {
+      SetUniform("specular_enabled", false);
+  }
 }
 
 void PhongShader::SetCamera(const CameraComponent& camera) const {
@@ -113,4 +143,13 @@ void PhongShader::SetLightSource(const LightComponent& component) const {
   }
 }
 
+void PhongShader::SetShadowMapping(
+    const Texture& shadow_texture,
+    const glm::mat4& world_to_light_ndc_matrix) const {
+  // TODO: set necessary uniforms for the shader and bind the texture to the
+  // corresponding texture unit.
+    SetUniform("shadow_texture", 3);
+    SetUniform("world_to_light_ndc_matrix", world_to_light_ndc_matrix);
+    shadow_texture.BindToUnit(3);
+}
 }  // namespace GLOO

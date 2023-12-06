@@ -42,6 +42,18 @@ vec3 CalcAmbientLight();
 vec3 CalcPointLight(vec3 normal, vec3 view_dir);
 vec3 CalcDirectionalLight(vec3 normal, vec3 view_dir);
 
+//
+uniform sampler2D ambient_texture;
+uniform sampler2D diffuse_texture;
+uniform sampler2D specular_texture;
+uniform sampler2D shadow_texture;
+uniform mat4 world_to_light_ndc_matrix;
+// Boolean Flag
+uniform bool ambient_enabled;
+uniform bool diffuse_enabled;
+uniform bool specular_enabled;
+//
+
 void main() {
     vec3 normal = normalize(world_normal);
     vec3 view_dir = normalize(camera_position - world_position);
@@ -62,15 +74,27 @@ void main() {
 }
 
 vec3 GetAmbientColor() {
-    return material.ambient;
+    if (ambient_enabled) {
+        return texture(ambient_texture, tex_coord).rgb;
+    } else {
+        return material.ambient;
+    }
 }
 
 vec3 GetDiffuseColor() {
-    return material.diffuse;
+    if (diffuse_enabled) {
+        return texture(diffuse_texture, tex_coord).rgb;
+    } else {
+        return material.diffuse;
+    }
 }
 
 vec3 GetSpecularColor() {
-    return material.specular;
+    if (specular_enabled) {
+        return texture(specular_texture, tex_coord).rgb;
+    } else {
+        return material.specular;
+    }
 }
 
 vec3 CalcAmbientLight() {
@@ -111,6 +135,18 @@ vec3 CalcDirectionalLight(vec3 normal, vec3 view_dir) {
         light.specular * GetSpecularColor();
 
     vec3 final_color = diffuse_color + specular_color;
+
+    // Shadow computations
+    vec4 x_ndc = world_to_light_ndc_matrix * vec4(world_position, 1.0f);
+    vec4 x_tex = (x_ndc + vec4(1.0f)) * 0.5f;
+    float this_depth = x_tex.z;
+    float occluder_depth = texture(shadow_texture, x_tex.xy).r;
+    float bias = 0.005f;
+    if (occluder_depth + bias < this_depth){
+        final_color *= occluder_depth + bias;
+    }
+    //
+
     return final_color;
 }
 
