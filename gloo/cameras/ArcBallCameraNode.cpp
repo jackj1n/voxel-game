@@ -55,7 +55,7 @@ void ArcBallCameraNode::Update(double delta_time) {
     }
     DistanceZoom(InputManager::GetInstance().GetCursorPosition());
     prev_released = false;
-  } else if (InputManager::GetInstance().IsKeyPressed('A')) {
+  } else if (InputManager::GetInstance().IsKeyPressed(';')) {
     if (prev_released) {
       ToggleAxes();
     }
