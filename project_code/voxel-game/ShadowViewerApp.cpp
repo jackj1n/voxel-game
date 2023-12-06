@@ -42,10 +42,9 @@ void ShadowViewerApp::SetupScene() {
   SceneNode& root = scene_->GetRootNode();
 
   // Setting up the camera. PLEASE DO NOT MODIFY THE INITIAL CAMERA TRANSFORM.
-  auto camera_node = make_unique<ArcBallCameraNode>(50.0f, 1.0f, 10.0f);
-  camera_node->GetTransform().SetPosition(glm::vec3(0.0f, -1.0f, 0.0f));
+  auto camera_node = make_unique<BasicCameraNode>(50.0f, 1.0f, 5.0f);
+  camera_node->GetTransform().SetPosition(glm::vec3(0.0f, 2.0f, 0.0f));
   camera_node->GetTransform().SetRotation(glm::vec3(0.0f, 1.0f, 0.0f), kPi / 2);
-  camera_node->Calibrate();
   scene_->ActivateCamera(camera_node->GetComponentPtr<CameraComponent>());
   root.AddChild(std::move(camera_node));
 
